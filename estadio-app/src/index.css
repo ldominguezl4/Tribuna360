@@ -1,0 +1,45 @@
+/* src/index.css */
+
+/* === 1. Directivas Tailwind === */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "leaflet/dist/leaflet.css";
+
+
+/* === 2. Estilo base global === */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a; /* gray-900 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === 3. Contenedor visual tipo móvil === */
+#root {
+  width: 100%;
+  max-width: 420px; /* tamaño típico de móvil */
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+/* === 4. Scrollbar personalizado === */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #60A5FA;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3B82F6;
+}
