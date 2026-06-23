@@ -35,7 +35,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    <Router basename="/Tribuna360">
   <ScrollToTop />
       <div className="flex justify-center bg-black min-h-screen w-full overflow-hidden font-sans">
         <div className="relative flex flex-col bg-gray-900 w-full max-w-[490px] h-screen shadow-2xl overflow-hidden rounded-3xl">

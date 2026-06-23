@@ -1,47 +1,47 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Home,
   MapPin,
   MessageSquare,
   User,
   Hand
-} from 'lucide-react';
+} from "lucide-react";
 
 function BottomNav() {
   const location = useLocation();
 
   const navItems = [
     {
-      path: '/',
+      path: "/",
       icon: Home,
-      label: 'Inicio'
+      label: "Inicio",
     },
     {
-      path: '/map',
+      path: "/map",
       icon: MapPin,
-      label: 'Mapa'
+      label: "Mapa",
     },
     {
-      path: '/translator',
+      path: "/translator",
       icon: Hand,
-      label: 'Señas IA'
+      label: "Señas IA",
     },
     {
-      path: '/multimedia',
+      path: "/multimedia",
       icon: MessageSquare,
-      label: 'Mensajes'
+      label: "Mensajes",
     },
     {
-      path: '/profile',
+      path: "/profile",
       icon: User,
-      label: 'Perfil'
-    }
+      label: "Perfil",
+    },
   ];
 
   return (
     <div className="absolute bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-700 shadow-2xl z-50">
-      <nav className="w-full h-16 bg-gray-800 border-t border-gray-700 flex items-center rounded-t-lg overflow-hidden">
+      <nav className="flex h-16 bg-gray-800 border-t border-gray-700 rounded-t-lg overflow-hidden">
 
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -52,21 +52,20 @@ function BottomNav() {
               key={item.path}
               to={item.path}
               aria-label={item.label}
-              className={`w-1/5 flex flex-col items-center justify-center py-1 transition-colors ${
+              className={`flex-1 flex flex-col items-center justify-center transition-colors ${
                 isActive
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-yellow-200'
+                  ? "text-yellow-400"
+                  : "text-gray-400 hover:text-yellow-200"
               }`}
             >
-              <Icon size={18} />
+              <Icon size={20} />
 
-              <span className="text-[10px] mt-0.5 font-medium text-center">
+              <span className="text-[10px] mt-1 text-center leading-none">
                 {item.label}
               </span>
             </Link>
           );
         })}
-
       </nav>
     </div>
   );
