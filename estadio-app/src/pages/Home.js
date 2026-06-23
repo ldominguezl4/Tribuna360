@@ -58,6 +58,16 @@ function Home() {
         ))}
       </div>
 
+
+      <div className="w-full max-w-sm mt-6">
+  <button
+    onClick={() => navigate("/stadium3d")}
+    className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-4 rounded-xl shadow-lg transition-all duration-300"
+  >
+    🏟 Explorar Estadio 360°
+  </button>
+</div>
+
     </div>
   );
 }

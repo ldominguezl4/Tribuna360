@@ -2,15 +2,21 @@ import React from "react";
 
 export default function Stadium3D() {
   return (
-    <div style={{ width: "100%", height: "100vh" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "calc(100vh - 140px)",
+        overflow: "hidden",
+      }}
+    >
       <iframe
-        src="/estadio3d/index.html"
+        src={`${process.env.PUBLIC_URL}/estadio3d/index.html`}
         title="Estadio 3D"
         width="100%"
         height="100%"
         style={{
           border: "none",
-          background: "#000"
+          display: "block",
         }}
       />
     </div>
