@@ -5,7 +5,7 @@ export default function Stadium3D() {
     <div
       style={{
         width: "100%",
-        height: "calc(100vh - 140px)",
+        height: "calc(100vh - 210px)",
         overflow: "hidden",
       }}
     >

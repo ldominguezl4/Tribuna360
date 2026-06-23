@@ -26,5 +26,7 @@ yarn-error.log*
 node_modules/
 estadio-app/node_modules/
 estadio-app/server/node_modules/
-.env
 
+
+.env
+server/.env

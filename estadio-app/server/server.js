@@ -1,4 +1,10 @@
 // 📦 Dependencias principales
+
+require("dotenv").config();
+
+console.log("SID:", process.env.TWILIO_ACCOUNT_SID ? "OK" : "NO");
+console.log("TOKEN:", process.env.TWILIO_AUTH_TOKEN ? "OK" : "NO");
+
 const express = require('express');
 const cors = require('cors');
 const twilio = require('twilio');
