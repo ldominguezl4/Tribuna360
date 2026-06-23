@@ -1,4 +1,6 @@
 // src/App.js
+import ScrollToTop from "./components/ScrollToTop";
+
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -34,13 +36,14 @@ function App() {
 
   return (
     <Router>
+  <ScrollToTop />
       <div className="flex justify-center bg-black min-h-screen w-full overflow-hidden font-sans">
         <div className="relative flex flex-col bg-gray-900 w-full max-w-[490px] h-screen shadow-2xl overflow-hidden rounded-3xl">
           {/* 🔹 Encabezado con botón de Ranking */}
           <Header onOpenRanking={() => setIsRankingOpen(true)} />
 
           {/* 🔹 Contenido principal */}
-          <main className="flex-grow overflow-y-auto pb-20">
+          <main className="flex-grow overflow-y-auto pb-24">
             <Routes>
               {routes.map((route, index) => (
                 <Route key={index} path={route.path} element={route.element} />
