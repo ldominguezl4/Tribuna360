@@ -1,17 +1,24 @@
 import React from "react";
-import { MapContainer, ImageOverlay, Marker, Popup, ZoomControl } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
+import {
+  MapContainer,
+  ImageOverlay,
+  Marker,
+  Popup,
+  ZoomControl,
+} from "react-leaflet";
 import L from "leaflet";
-import estadioImg from "../assets/estadio_mapa.png"; // 👈 asegúrate que esta imagen exista
+import estadioImg from "../assets/estadio_mapa.png";
 import "leaflet/dist/leaflet.css";
 
 const MapPage = () => {
-  // Coordenadas simuladas para los límites de la imagen (0,0)-(1000,800)
+  const navigate = useNavigate();
+
   const bounds = [
     [0, 0],
     [800, 1000],
   ];
 
-  // Ícono personalizado para marcadores (puedes cambiarlo si quieres)
   const customIcon = new L.Icon({
     iconUrl: "https://cdn-icons-png.flaticon.com/512/854/854878.png",
     iconSize: [32, 32],
@@ -23,7 +30,7 @@ const MapPage = () => {
         Mapa Interactivo del Estadio
       </h1>
 
-      <div className="w-full max-w-xl h-[70vh] rounded-xl overflow-hidden shadow-2xl border-2 border-yellow-500">
+      <div className="w-full max-w-xl h-[60vh] rounded-xl overflow-hidden shadow-2xl border-2 border-yellow-500">
         <MapContainer
           crs={L.CRS.Simple}
           bounds={bounds}
@@ -33,13 +40,10 @@ const MapPage = () => {
           zoomControl={false}
           style={{ width: "100%", height: "100%" }}
         >
-          {/* Imagen base del mapa */}
           <ImageOverlay url={estadioImg} bounds={bounds} />
 
-          {/* Controles de zoom */}
           <ZoomControl position="bottomright" />
 
-          {/* Marcadores de ejemplo */}
           <Marker position={[400, 500]} icon={customIcon}>
             <Popup>
               🎫 Entrada Principal Norte <br />
@@ -66,9 +70,16 @@ const MapPage = () => {
       <p className="text-gray-400 text-sm text-center mt-4">
         Haz zoom o mueve el mapa para explorar el estadio.
       </p>
+
+      {/* BOTÓN PARA ABRIR UNITY */}
+      <button
+        onClick={() => navigate("/stadium3d")}
+        className="mt-6 w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300"
+      >
+        🏟️ Explorar estadio en 3D
+      </button>
     </div>
   );
 };
 
 export default MapPage;
-
