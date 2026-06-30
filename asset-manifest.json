@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Tribuna360/static/css/main.530e57d9.css",
-    "main.js": "/Tribuna360/static/js/main.4a758e8d.js",
+    "main.css": "/Tribuna360/static/css/main.3b85600f.css",
+    "main.js": "/Tribuna360/static/js/main.87e173bc.js",
     "static/media/estadio_mapa.png": "/Tribuna360/static/media/estadio_mapa.cb3e14518efe1bb144db.png",
     "static/media/estadio_principal.jpg": "/Tribuna360/static/media/estadio_principal.e907df232d7586958655.jpg",
     "index.html": "/Tribuna360/index.html",
-    "main.530e57d9.css.map": "/Tribuna360/static/css/main.530e57d9.css.map",
-    "main.4a758e8d.js.map": "/Tribuna360/static/js/main.4a758e8d.js.map"
+    "main.3b85600f.css.map": "/Tribuna360/static/css/main.3b85600f.css.map",
+    "main.87e173bc.js.map": "/Tribuna360/static/js/main.87e173bc.js.map"
   },
   "entrypoints": [
-    "static/css/main.530e57d9.css",
-    "static/js/main.4a758e8d.js"
+    "static/css/main.3b85600f.css",
+    "static/js/main.87e173bc.js"
   ]
 }
