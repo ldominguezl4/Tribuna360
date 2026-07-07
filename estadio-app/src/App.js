@@ -1,8 +1,8 @@
 // src/App.js
+
 import ScrollToTop from "./components/ScrollToTop";
 
 import React, { useEffect, useState } from "react";
-import io from "socket.io-client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { routes } from "./routes";
 import Header from "./components/Header";
@@ -15,60 +15,95 @@ import { initializePoints } from "./services/pointsService";
 function App() {
   const [isRankingOpen, setIsRankingOpen] = useState(false);
 
-  // 🔹 Sistema de alertas
   const [alerts, setAlerts] = useState([]);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     initializePoints();
 
-    // Permite enviar alertas desde la consola:
     window.sendAlert = (msg) => {
       const newAlert = {
         message: msg,
         time: new Date().toLocaleTimeString(),
       };
+
       setAlerts((prev) => [newAlert, ...prev]);
       setUnread((prev) => prev + 1);
+
       console.log(`✅ Alerta enviada: "${msg}"`);
     };
   }, []);
 
   return (
     <Router basename="/Tribuna360">
-  <ScrollToTop />
-      <div className="flex justify-center bg-black min-h-screen w-full overflow-hidden font-sans">
-        <div className="relative flex flex-col bg-gray-900 w-full max-w-[550px] h-screen shadow-2xl overflow-hidden rounded-3xl">
-          {/* 🔹 Encabezado con botón de Ranking */}
+      <ScrollToTop />
+
+      {/* Fondo */}
+      <div className="min-h-screen bg-black flex justify-center items-center p-5">
+
+        {/* Simulación de iPhone */}
+        <div
+          className="
+            relative
+            w-[390px]
+            h-[844px]
+            bg-[#0B1020]
+            rounded-[32px]
+            shadow-2xl
+            border-2
+            border-gray-700
+            overflow-hidden
+          "
+        >
+
           <Header onOpenRanking={() => setIsRankingOpen(true)} />
 
-          {/* 🔹 Contenido principal */}
-          <main className="flex-grow overflow-y-auto pb-24">
+          <main className="flex-1 overflow-y-auto pb-24 h-full">
+
             <Routes>
+
               {routes.map((route, index) => (
-                <Route key={index} path={route.path} element={route.element} />
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={route.element}
+                />
               ))}
 
-              {/* Página de Alertas con función para limpiar notificaciones */}
               <Route
                 path="/alert"
-                element={<Alerts alerts={alerts} onRead={() => setUnread(0)} />}
+                element={
+                  <Alerts
+                    alerts={alerts}
+                    onRead={() => setUnread(0)}
+                  />
+                }
               />
 
-              {/* Home con contador de notificaciones */}
-              <Route path="/" element={<Home unread={unread} />} />
+              <Route
+                path="/"
+                element={<Home unread={unread} />}
+              />
+
             </Routes>
+
           </main>
 
-          {/* 🔹 Modal de Ranking */}
           {isRankingOpen && (
-            <RankingModal onClose={() => setIsRankingOpen(false)} />
+            <RankingModal
+              onClose={() => setIsRankingOpen(false)}
+            />
           )}
 
-          {/* 🔹 Barra inferior (sin tocar) */}
-          <BottomNav unreadAlerts={unread} onOpenAlerts={() => setUnread(0)} />
+          <BottomNav
+            unreadAlerts={unread}
+            onOpenAlerts={() => setUnread(0)}
+          />
+
         </div>
+
       </div>
+
     </Router>
   );
 }

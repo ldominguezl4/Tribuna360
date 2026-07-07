@@ -1,12 +1,17 @@
-// src/pages/Home.js
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Ticket, MapPin, Bell, MessageSquare } from "lucide-react";
+import {
+  Ticket,
+  MapPin,
+  Bell,
+  MessageSquare,
+} from "lucide-react";
+
 import ActionButton from "../components/ActionButton";
-import estadioImage from "../assets/estadio_principal.jpg";
+import logo from "../assets/logo-header.jpeg";
 
 function Home() {
+
   const navigate = useNavigate();
 
   const buttons = [
@@ -34,32 +39,58 @@ function Home() {
   ];
 
   return (
-    <div className="flex flex-col items-center p-4 pt-6 bg-gray-900 text-white min-h-full">
-      
-      <div className="w-full max-w-sm rounded-lg overflow-hidden shadow-2xl mb-6">
-        <img
-          src={estadioImage}
-          alt="Vista principal del estadio"
-          className="w-full h-48 object-cover opacity-80"
-        />
-      </div>
 
-      <h1 className="text-3xl font-extrabold text-blue-400 mb-6 text-center">
-        ¡VAMOS POR LA GLORIA!
+    <div className="flex flex-col items-center p-6 bg-gradient-to-b from-[#0B1020] to-[#111827] text-white min-h-full">
+
+      {/* Logo */}
+
+      <img
+        src={logo}
+        alt="Tribuna360"
+        className="w-72 mb-8 object-contain"
+      />
+
+      {/* Título */}
+
+      <h1 className="text-4xl font-extrabold text-center text-white leading-tight mb-3">
+
+        Tu experiencia,
+        <br />
+
+        <span className="text-blue-400">
+          todos los ángulos.
+        </span>
+
       </h1>
 
-      <button className="bg-accent text-white px-8 py-4 rounded-xl shadow-lg w-full max-w-sm mb-8 font-semibold">
+
+      {/* Próximo partido */}
+
+      <button className="w-full max-w-sm bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl py-4 font-bold shadow-xl hover:scale-105 transition mb-10">
+
         Próximo partido
+
       </button>
 
-      <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+      {/* Botones */}
+
+      <div className="grid grid-cols-2 gap-5 w-full max-w-sm">
+
         {buttons.map((btn) => (
-          <ActionButton key={btn.label} {...btn} />
+
+          <ActionButton
+            key={btn.label}
+            {...btn}
+          />
+
         ))}
+
       </div>
 
     </div>
+
   );
+
 }
 
 export default Home;

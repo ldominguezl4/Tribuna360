@@ -188,11 +188,7 @@ hands.onResults((results) => {
   return (
     <div className="bg-gray-900 text-white flex flex-col" style={{ height: "100dvh", overflow: "hidden" }}>
 
-      {/* ── Título compacto ── */}
-      <div className="text-center py-2 flex-shrink-0">
-        <h1 className="text-xl font-bold text-yellow-400">🤟 Traductor de Señas</h1>
-      </div>
-
+  
       {/* ── Video sin barras negras ── */}
       <div
         ref={containerRef}
