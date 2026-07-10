@@ -1,17 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
+import TribiModal from "./TribiModal";
+import "./TribiModal.css";
 
 const GESTURES = [
-  { id: "thumbup", label: "🚨 NECESITO AYUDA", emoji: "👍" },
-  { id: "peace",   label: "✌️ PAZ / DOS",      emoji: "✌️" },
-  { id: "ok",      label: "👌 OKAY",            emoji: "👌" },
-  { id: "point",   label: "☝️ UNO / SEÑALAR",   emoji: "☝️" },
-  { id: "fist",    label: "✊ PUÑO / STOP",     emoji: "✊" },
-  { id: "open",    label: "✋ HOLA / PARA",     emoji: "✋" },
-  { id: "rock",    label: "🤘 ROCK",            emoji: "🤘" },
-  { id: "call",    label: "🤙 LLAMAR",          emoji: "🤙" },
+  { id: "thumbup", label: "🎫 ENTRADAS", emoji: "👍" },
+  { id: "peace",   label: "✌️ COMUNIDAD",    emoji: "✌️" },
+  { id: "point",   label: "☝️ MAPA",         emoji: "☝️" },
+  { id: "open",    label: "✋ INICIO",        emoji: "✋" },
+  { id: "call",    label: "🤙 ALERTAS",       emoji: "🤙" },
 ];
+
+const STATES = {
+  WAIT_COMMAND: "WAIT_COMMAND",
+  WAIT_CONFIRMATION: "WAIT_CONFIRMATION",
+  EXECUTING: "EXECUTING"
+};
+
+const ROUTE_MAP = {
+  thumbup: "/tickets",
+  point: "/map",
+  call: "/alert",
+  peace: "/multimedia",
+  open: "/"
+};
 
 function dist(a, b) {
   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2);
@@ -83,16 +97,37 @@ function SignTranslator() {
   const videoRef  = useRef(null);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+
   const [handDetected, setHandDetected] = useState(false);
   const [gestureId, setGestureId]       = useState(null);
   const [videoDims, setVideoDims]        = useState({ w: 1, h: 1 });
 
-  // Calcula dimensiones reales del contenedor para eliminar barras negras
+  // Controladores de Estado e Interacción con Tribi
+  const [currentState, setCurrentState] = useState(STATES.WAIT_COMMAND);
+  const [selectedGesture, setSelectedGesture] = useState(null);
+  const [modalConfig, setModalConfig] = useState({ visible: false, currentStatus: "waiting", message: "", customEmoji: null });
+
+  // Referencias mutables para estabilidad de frames y temporizadores
+  const lastGestureRef = useRef(null);
+  const gestureTimestampRef = useRef(null);
+  const confirmationTimerRef = useRef(null);
+  const stateRef = useRef(STATES.WAIT_COMMAND);
+  const selectedGestureRef = useRef(null);
+
+  // Sincronizar referencias del loop con el renderizado de React
+  useEffect(() => {
+    stateRef.current = currentState;
+  }, [currentState]);
+
+  useEffect(() => {
+    selectedGestureRef.current = selectedGesture;
+  }, [selectedGesture]);
+
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
         const cw = containerRef.current.clientWidth;
-        // Mantener aspect ratio 4:3 de la cámara
         const ch = Math.round(cw * (480 / 640));
         setVideoDims({ w: cw, h: ch });
       }
@@ -101,6 +136,72 @@ function SignTranslator() {
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
+
+  // Procesa el gesto de manera asíncrona una vez validada su estabilidad (800ms)
+  const processStableGesture = (gesture) => {
+    const activeState = stateRef.current;
+
+    if (activeState === STATES.WAIT_COMMAND) {
+      if (ROUTE_MAP[gesture]) {
+        setSelectedGesture(gesture);
+        setCurrentState(STATES.WAIT_CONFIRMATION);
+        setModalConfig({
+          visible: true,
+          currentStatus: "waiting",
+          message: "",
+          customEmoji: null
+        });
+
+        if (confirmationTimerRef.current) clearTimeout(confirmationTimerRef.current);
+        confirmationTimerRef.current = setTimeout(() => {
+          triggerCancel("Tiempo de espera agotado");
+        }, 10000);
+      }
+    } 
+    else if (activeState === STATES.WAIT_CONFIRMATION) {
+      if (gesture === "thumbup") {
+        triggerConfirm();
+      } else if (gesture === "open") {
+        triggerCancel("Acción cancelada por el usuario");
+      }
+    }
+  };
+
+  const triggerConfirm = () => {
+    if (confirmationTimerRef.current) clearTimeout(confirmationTimerRef.current);
+    setCurrentState(STATES.EXECUTING);
+    setModalConfig(prev => ({
+      ...prev,
+      currentStatus: "confirmed",
+      message: "¡Perfecto! Abriendo sección...",
+      customEmoji: "👌"
+    }));
+
+    setTimeout(() => {
+      const targetRoute = ROUTE_MAP[selectedGestureRef.current];
+      setModalConfig({ visible: false, currentStatus: "waiting", message: "", customEmoji: null });
+      setCurrentState(STATES.WAIT_COMMAND);
+      setSelectedGesture(null);
+      if (targetRoute !== undefined) navigate(targetRoute);
+    }, 1800);
+  };
+
+  const triggerCancel = (feedback) => {
+    if (confirmationTimerRef.current) clearTimeout(confirmationTimerRef.current);
+    setCurrentState(STATES.EXECUTING);
+    setModalConfig(prev => ({
+      ...prev,
+      currentStatus: "cancelled",
+      message: feedback,
+      customEmoji: "✊"
+    }));
+
+    setTimeout(() => {
+      setModalConfig({ visible: false, currentStatus: "waiting", message: "", customEmoji: null });
+      setCurrentState(STATES.WAIT_COMMAND);
+      setSelectedGesture(null);
+    }, 1800);
+  };
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -112,87 +213,80 @@ function SignTranslator() {
     const hands = new Hands({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
     });
+
     hands.setOptions({
       maxNumHands: 1,
       modelComplexity: 1,
       minDetectionConfidence: 0.6,
       minTrackingConfidence: 0.6,
     });
-hands.onResults((results) => {
-    if (!isMounted) return;
 
-  if (!canvasRef.current || !ctx) return;
+    hands.onResults((results) => {
+      if (!isMounted || !canvasRef.current || !ctx) return;
 
-  const currentCanvas = canvasRef.current;
+      const currentCanvas = canvasRef.current;
+      ctx.clearRect(0, 0, currentCanvas.width, currentCanvas.height);
 
-  ctx.clearRect(
-    0,
-    0,
-    currentCanvas.width,
-    currentCanvas.height
-  );
+      if (results.multiHandLandmarks?.length > 0) {
+        const lm = results.multiHandLandmarks[0];
+        drawLandmarks(ctx, lm, currentCanvas.width, currentCanvas.height);
+        setHandDetected(true);
 
-  if (results.multiHandLandmarks?.length > 0) {
+        const currentGesture = detectGesture(lm);
+        setGestureId(currentGesture);
 
-    const lm = results.multiHandLandmarks[0];
-
-    drawLandmarks(
-      ctx,
-      lm,
-      currentCanvas.width,
-      currentCanvas.height
-    );
-
-    setHandDetected(true);
-    setGestureId(detectGesture(lm));
-
-  } else {
-
-    setHandDetected(false);
-    setGestureId(null);
-
-  }
-});
-   const camera = new Camera(videoRef.current, {
-  onFrame: async () => {
-
-    if (!isMounted) return;
-    if (!videoRef.current) return;
-
-    await hands.send({
-      image: videoRef.current
+        if (currentGesture && stateRef.current !== STATES.EXECUTING) {
+          const now = Date.now();
+          if (currentGesture !== lastGestureRef.current) {
+            lastGestureRef.current = currentGesture;
+            gestureTimestampRef.current = now;
+          } else {
+            const delta = now - gestureTimestampRef.current;
+            if (delta >= 800) {
+              lastGestureRef.current = null;
+              gestureTimestampRef.current = null;
+              processStableGesture(currentGesture);
+            }
+          }
+        } else if (!currentGesture) {
+          lastGestureRef.current = null;
+          gestureTimestampRef.current = null;
+        }
+      } else {
+        setHandDetected(false);
+        setGestureId(null);
+        lastGestureRef.current = null;
+        gestureTimestampRef.current = null;
+      }
     });
 
-  },
-  width: 640,
-  height: 480,
-});
+    const camera = new Camera(videoRef.current, {
+      onFrame: async () => {
+        if (!isMounted || !videoRef.current) return;
+        await hands.send({ image: videoRef.current });
+      },
+      width: 640,
+      height: 480,
+    });
     camera.start();
 
-   return () => {
-
-  isMounted = false;
-
-  try {
-    camera.stop();
-  } catch (e) {}
-
-  try {
-    hands.close();
-  } catch (e) {}
-};
+    return () => {
+      isMounted = false;
+      if (confirmationTimerRef.current) clearTimeout(confirmationTimerRef.current);
+      try { camera.stop(); } catch (e) {}
+      try { hands.close(); } catch (e) {}
+    };
   }, []);
 
   const detectedGesture = GESTURES.find((g) => g.id === gestureId);
 
   return (
     <div className="bg-gray-900 text-white flex flex-col" style={{ height: "100dvh", overflow: "hidden" }}>
-
-  
+      
       {/* ── Video sin barras negras ── */}
       <div
         ref={containerRef}
-        className="relative flex-shrink-0 border-4 border-yellow-400 rounded-xl overflow-hidden mx-3"
+        className="relative flex-shrink-0 border-4 border-yellow-400 rounded-xl overflow-hidden mx-3 mt-4"
         style={{ width: "calc(100% - 1.5rem)" }}
       >
         <video
@@ -204,7 +298,7 @@ hands.onResults((results) => {
             width: "100%",
             height: "auto",
             aspectRatio: "4/3",
-            objectFit: "cover",   // ← elimina las barras negras
+            objectFit: "cover",
             transform: "scaleX(-1)",
           }}
         />
@@ -221,7 +315,6 @@ hands.onResults((results) => {
           }}
         />
 
-        {/* ── Estado superpuesto sobre el video (esquina superior) ── */}
         <div
           className="absolute top-2 left-2 px-2 py-1 rounded-lg text-xs font-bold"
           style={{ background: "rgba(0,0,0,0.6)" }}
@@ -235,8 +328,8 @@ hands.onResults((results) => {
       {/* ── Resultado traducción ── */}
       <div className="flex-shrink-0 mx-3 mt-2">
         {detectedGesture ? (
-          <div className="bg-red-600 rounded-xl px-4 py-3 text-center">
-            <div className="text-xs text-red-200 mb-1 uppercase tracking-wide">Gesto detectado</div>
+          <div className="bg-blue-600 rounded-xl px-4 py-3 text-center">
+            <div className="text-xs text-blue-200 mb-1 uppercase tracking-wide">Gesto detectado</div>
             <div className="text-2xl font-bold">{detectedGesture.label}</div>
           </div>
         ) : (
@@ -247,36 +340,40 @@ hands.onResults((results) => {
         )}
       </div>
 
-{/* ── Señas soportadas ── */}
-<div className="mx-3 mt-2 mb-2 flex-shrink-0">
-  <div className="bg-gray-800 rounded-xl px-3 py-2">
-
-    <div className="text-center text-[10px] text-gray-400 uppercase mb-2">
-      Señas soportadas
-    </div>
-
-    <div className="flex justify-center flex-wrap gap-2">
-      {GESTURES.map((g) => (
-        <div
-          key={g.id}
-          className={`
-            w-10 h-10 rounded-full flex items-center justify-center
-            text-xl transition-all duration-300
-            ${
-              gestureId === g.id
-                ? "bg-yellow-400 text-gray-900 scale-125 shadow-lg"
-                : "bg-gray-700 text-white"
-            }
-          `}
-        >
-          {g.emoji}
+      {/* ── Señas soportadas ── */}
+      <div className="mx-3 mt-2 mb-2 flex-shrink-0">
+        <div className="bg-gray-800 rounded-xl px-3 py-2">
+          <div className="text-center text-[10px] text-gray-400 uppercase mb-2">
+            Señas soportadas como comandos
+          </div>
+          <div className="flex justify-center flex-wrap gap-2">
+            {GESTURES.map((g) => (
+              <div
+                key={g.id}
+                className={`
+                  w-10 h-10 rounded-full flex items-center justify-center
+                  text-xl transition-all duration-300
+                  ${gestureId === g.id
+                    ? "bg-yellow-400 text-gray-900 scale-125 shadow-lg"
+                    : "bg-gray-700 text-white"
+                  }
+                `}
+              >
+                {g.emoji}
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
+      </div>
 
-  </div>
-</div>
-
+      {/* Asistente inteligente Tribi Modal */}
+      <TribiModal 
+        visible={modalConfig.visible}
+        gesture={selectedGesture}
+        currentStatus={modalConfig.currentStatus}
+        customMessage={modalConfig.message}
+        customEmoji={modalConfig.customEmoji}
+      />
     </div>
   );
 }
