@@ -1,15 +1,17 @@
 {
   "files": {
-    "main.css": "/Tribuna360/static/css/main.3b85600f.css",
-    "main.js": "/Tribuna360/static/js/main.87e173bc.js",
+    "main.css": "/Tribuna360/static/css/main.c23aceab.css",
+    "main.js": "/Tribuna360/static/js/main.1bc3ced5.js",
     "static/media/estadio_mapa.png": "/Tribuna360/static/media/estadio_mapa.cb3e14518efe1bb144db.png",
-    "static/media/estadio_principal.jpg": "/Tribuna360/static/media/estadio_principal.e907df232d7586958655.jpg",
+    "static/media/Tribuna360-logo.jpeg": "/Tribuna360/static/media/Tribuna360-logo.a745e157fdccc21a2261.jpeg",
+    "static/media/logo-header.jpeg": "/Tribuna360/static/media/logo-header.a745e157fdccc21a2261.jpeg",
+    "static/media/logo_ucv-removebg-preview.png": "/Tribuna360/static/media/logo_ucv-removebg-preview.046fe078c913b2789123.png",
     "index.html": "/Tribuna360/index.html",
-    "main.3b85600f.css.map": "/Tribuna360/static/css/main.3b85600f.css.map",
-    "main.87e173bc.js.map": "/Tribuna360/static/js/main.87e173bc.js.map"
+    "main.c23aceab.css.map": "/Tribuna360/static/css/main.c23aceab.css.map",
+    "main.1bc3ced5.js.map": "/Tribuna360/static/js/main.1bc3ced5.js.map"
   },
   "entrypoints": [
-    "static/css/main.3b85600f.css",
-    "static/js/main.87e173bc.js"
+    "static/css/main.c23aceab.css",
+    "static/js/main.1bc3ced5.js"
   ]
 }
