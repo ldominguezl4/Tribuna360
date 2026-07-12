@@ -7,7 +7,6 @@ const userProfile = {
     name: "Erik Davis",
     username: "HinchaUCV_2025",
     memberSince: "Enero 2025",
-    avatarUrl: "https://via.placeholder.com/150/5A67D8/FFFFFF?text=UCV",
 };
 
 const userTickets = [
@@ -18,6 +17,16 @@ const userTickets = [
 
 function Profile() {
     const [tickets, setTickets] = useState(userTickets);
+
+    // 🚪 Función para cerrar sesión instantáneamente sin alertas
+    const handleLogout = () => {
+        if (window.logout) {
+            window.logout(); // Ejecuta el cierre de sesión global
+        } else {
+            localStorage.removeItem("isLoggedIn");
+            window.location.reload();
+        }
+    };
 
     return (
         <div className="p-4 bg-gray-900 min-w-full">
@@ -31,11 +40,10 @@ function Profile() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-gray-800 p-6 rounded-xl shadow-2xl mb-8 border border-gray-700 text-center"
             >
-                <img 
-                    src={userProfile.avatarUrl} 
-                    alt="Avatar de Usuario" 
-                    className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-blue-500 object-cover"
-                />
+                {/* 👤 AVATAR CORREGIDO: Contenedor con el icono User de lucide-react */}
+                <div className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-blue-500 bg-gray-700 flex items-center justify-center text-blue-400 shadow-lg">
+                    <User size={44} />
+                </div>
                 
                 <h2 className="text-2xl font-bold text-white mb-1">{userProfile.name}</h2>
                 <p className="text-blue-400 font-mono mb-3">@{userProfile.username}</p>
@@ -49,8 +57,10 @@ function Profile() {
                         <Edit size={16} className="mr-1" />
                         Editar Perfil
                     </button>
+                    
+                    {/* Botón Cerrar Sesión Silencioso */}
                     <button 
-                        onClick={() => alert("Cerrando sesión...")}
+                        onClick={handleLogout}
                         className="flex items-center text-sm text-gray-300 hover:text-red-400 transition"
                     >
                         <LogOut size={16} className="mr-1" />

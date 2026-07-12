@@ -45,8 +45,10 @@ function detectGesture(lm) {
   const middle = isExtended(lm, 12, 10);
   const ring   = isExtended(lm, 16, 14);
   const pinky  = isExtended(lm, 20, 18);
+  
   const thumbUp = lm[4].y < lm[2].y - 0.04;
   const handSize = dist(lm[0], lm[9]);
+  
   const isOK   = dist(lm[4], lm[8]) < handSize * 0.35 && middle && ring && pinky;
   const isCall = thumb && !index && !middle && !ring && pinky;
   const isRock = index && !middle && !ring && pinky && thumb;
@@ -54,11 +56,17 @@ function detectGesture(lm) {
   if (isOK)   return "ok";
   if (isCall) return "call";
   if (isRock) return "rock";
+  
   if (!thumb && !index && !middle && !ring && !pinky) return "fist";
   if (thumb && index && middle && ring && pinky)      return "open";
   if (thumbUp && !index && !middle && !ring && !pinky) return "thumbup";
-  if (!thumb && index && !middle && !ring && !pinky)  return "point";
-  if (!thumb && index && middle && !ring && !pinky)   return "peace";
+  
+  // Corrección para ☝️ (Mapa)
+  if (index && !middle && !ring && !pinky)  return "point";
+  
+  // Corrección para ✌️ (Comunidad/Mensajes)
+  if (index && middle && !ring && !pinky)   return "peace";
+  
   return null;
 }
 
@@ -93,6 +101,18 @@ function drawLandmarks(ctx, lm, W, H) {
   }
 }
 
+// 🔊 Función auxiliar de Voz para Tribi
+const speak = (text) => {
+  if ("speechSynthesis" in window) {
+    // Cancelar cualquier audio previo para evitar superposiciones
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "es-ES"; // Configura el idioma a español
+    utterance.rate = 1.0;     // Velocidad normal
+    window.speechSynthesis.speak(utterance);
+  }
+};
+
 function SignTranslator() {
   const videoRef  = useRef(null);
   const canvasRef = useRef(null);
@@ -103,19 +123,16 @@ function SignTranslator() {
   const [gestureId, setGestureId]       = useState(null);
   const [videoDims, setVideoDims]        = useState({ w: 1, h: 1 });
 
-  // Controladores de Estado e Interacción con Tribi
   const [currentState, setCurrentState] = useState(STATES.WAIT_COMMAND);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [modalConfig, setModalConfig] = useState({ visible: false, currentStatus: "waiting", message: "", customEmoji: null });
 
-  // Referencias mutables para estabilidad de frames y temporizadores
   const lastGestureRef = useRef(null);
   const gestureTimestampRef = useRef(null);
   const confirmationTimerRef = useRef(null);
   const stateRef = useRef(STATES.WAIT_COMMAND);
   const selectedGestureRef = useRef(null);
 
-  // Sincronizar referencias del loop con el renderizado de React
   useEffect(() => {
     stateRef.current = currentState;
   }, [currentState]);
@@ -137,7 +154,6 @@ function SignTranslator() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Procesa el gesto de manera asíncrona una vez validada su estabilidad (800ms)
   const processStableGesture = (gesture) => {
     const activeState = stateRef.current;
 
@@ -152,6 +168,10 @@ function SignTranslator() {
           customEmoji: null
         });
 
+        // Mapear los nombres para que el audio suene natural
+        const actionNames = { thumbup: "Entradas", point: "Mapa", call: "Alertas", peace: "Comunidad", open: "Inicio" };
+        speak(`He detectado la seña ${actionNames[gesture] || ""}. ¿Deseas abrir esta sección?`);
+
         if (confirmationTimerRef.current) clearTimeout(confirmationTimerRef.current);
         confirmationTimerRef.current = setTimeout(() => {
           triggerCancel("Tiempo de espera agotado");
@@ -162,7 +182,7 @@ function SignTranslator() {
       if (gesture === "thumbup") {
         triggerConfirm();
       } else if (gesture === "open") {
-        triggerCancel("Acción cancelada por el usuario");
+        triggerCancel("Acción cancelada");
       }
     }
   };
@@ -176,6 +196,8 @@ function SignTranslator() {
       message: "¡Perfecto! Abriendo sección...",
       customEmoji: "👌"
     }));
+
+    speak("Perfecto. Redirigiendo.");
 
     setTimeout(() => {
       const targetRoute = ROUTE_MAP[selectedGestureRef.current];
@@ -195,6 +217,8 @@ function SignTranslator() {
       message: feedback,
       customEmoji: "✊"
     }));
+
+    speak(feedback);
 
     setTimeout(() => {
       setModalConfig({ visible: false, currentStatus: "waiting", message: "", customEmoji: null });
@@ -283,7 +307,6 @@ function SignTranslator() {
   return (
     <div className="bg-gray-900 text-white flex flex-col" style={{ height: "100dvh", overflow: "hidden" }}>
       
-      {/* ── Video sin barras negras ── */}
       <div
         ref={containerRef}
         className="relative flex-shrink-0 border-4 border-yellow-400 rounded-xl overflow-hidden mx-3 mt-4"
@@ -325,7 +348,6 @@ function SignTranslator() {
         </div>
       </div>
 
-      {/* ── Resultado traducción ── */}
       <div className="flex-shrink-0 mx-3 mt-2">
         {detectedGesture ? (
           <div className="bg-blue-600 rounded-xl px-4 py-3 text-center">
@@ -340,7 +362,6 @@ function SignTranslator() {
         )}
       </div>
 
-      {/* ── Señas soportadas ── */}
       <div className="mx-3 mt-2 mb-2 flex-shrink-0">
         <div className="bg-gray-800 rounded-xl px-3 py-2">
           <div className="text-center text-[10px] text-gray-400 uppercase mb-2">
@@ -366,7 +387,6 @@ function SignTranslator() {
         </div>
       </div>
 
-      {/* Asistente inteligente Tribi Modal */}
       <TribiModal 
         visible={modalConfig.visible}
         gesture={selectedGesture}
