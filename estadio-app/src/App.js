@@ -76,19 +76,24 @@ function App() {
             border-2
             border-gray-700
             overflow-hidden
+            flex flex-col /* 👈 Forzamos a que se comporte como una columna vertical */
           "
         >
-          {/* 🚪 CONDICIONAL: Si NO está logueado, forzar la vista de Login en pantalla completa */}
+          {/* 🚪 CONDICIONAL: Si NO está logueado */}
           {!isLoggedIn ? (
-            <Routes>
-              <Route path="*" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-            </Routes>
+            <div className="w-full h-full overflow-y-auto scrollbar-none">
+              <Routes>
+                <Route path="*" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+              </Routes>
+            </div>
           ) : (
-            /* 🔓 Si SÍ está logueado, carga toda la App normal con sus menús */
+            /* 🔓 Si SÍ está logueado */
             <>
+              {/* Header fijo arriba */}
               <Header onOpenRanking={() => setIsRankingOpen(true)} />
 
-              <main className="flex-1 overflow-y-auto pb-24 h-full">
+              {/* 📱 CONTENEDOR PRINCIPAL: Flex-1 toma el espacio del centro y permite scroll interno táctil */}
+              <main className="flex-1 overflow-y-auto scrollbar-none w-full relative">
                 <Routes>
                   {routes.map((route, index) => (
                     <Route
@@ -113,17 +118,18 @@ function App() {
                     element={<Home unread={unread} />}
                   />
                   
-                  {/* Si intenta entrar a /login estando ya logueado, lo manda al inicio */}
                   <Route path="/login" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
 
+              {/* Modales e Interfaz inferior fija */}
               {isRankingOpen && (
                 <RankingModal
                   onClose={() => setIsRankingOpen(false)}
                 />
               )}
 
+              {/* Menú de navegación fijo abajo */}
               <BottomNav
                 unreadAlerts={unread}
                 onOpenAlerts={() => setUnread(0)}

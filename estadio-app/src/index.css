@@ -6,29 +6,47 @@
 @tailwind utilities;
 @import "leaflet/dist/leaflet.css";
 
-
 /* === 2. Estilo base global === */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #0f172a; /* gray-900 */
+  background-color: #000000; /* Fondo negro elegante exterior */
+}
+
+body {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* === 3. Contenedor visual tipo móvil === */
+/* === 3. Contenedor visual tipo móvil CORREGIDO === */
 #root {
   width: 100%;
-  max-width: 420px; /* tamaño típico de móvil */
   height: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* === 4. Scrollbar personalizado === */
+/* === 4. Ocultar barra de scroll manteniendo la funcionalidad táctil === */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important; /* Safari y Chrome */
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none !important;  /* IE y Edge */
+  scrollbar-width: none !important;  /* Firefox */
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important; /* Scroll fluido táctil en celulares */
+}
+
+/* === 5. Evitar que el mapa de Leaflet bloquee el scroll del dedo === */
+.leaflet-container {
+  touch-action: pan-y !important; /* Permite deslizar la página verticalmente sobre el mapa */
+}
+
+/* === 6. Scrollbar personalizado (por si lo usas en otro lado) === */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

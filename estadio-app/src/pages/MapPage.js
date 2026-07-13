@@ -25,12 +25,14 @@ const MapPage = () => {
   });
 
   return (
-    <div className="flex flex-col items-center justify-start w-full h-full bg-gray-900 text-white p-4">
+    /* 📱 CAMBIO CLAVE: Ajustamos altura completa, scroll vertical oculto y espacio de seguridad abajo (pb-28) */
+    <div className="w-full h-full overflow-y-auto scrollbar-none flex flex-col items-center justify-start bg-gray-900 text-white p-4 pb-28">
       <h1 className="text-2xl font-extrabold mb-4 text-yellow-400">
         Mapa Interactivo del Estadio
       </h1>
 
-      <div className="w-full max-w-xl h-[60vh] rounded-xl overflow-hidden shadow-2xl border-2 border-yellow-500">
+      {/* 🏟️ ALTO CORREGIDO: Cambiado de h-[60vh] a h-[420px] para que calce exacto en la pantalla del móvil */}
+      <div className="w-full max-w-xl h-[420px] rounded-xl overflow-hidden shadow-2xl border-2 border-yellow-500 flex-shrink-0">
         <MapContainer
           crs={L.CRS.Simple}
           bounds={bounds}
@@ -38,6 +40,8 @@ const MapPage = () => {
           minZoom={-1}
           maxZoom={3}
           zoomControl={false}
+          dragging={true} // Mantiene el movimiento interno del mapa
+          tap={false}      // Permite que iOS y Android no bloqueen los toques
           style={{ width: "100%", height: "100%" }}
         >
           <ImageOverlay url={estadioImg} bounds={bounds} />
@@ -74,7 +78,7 @@ const MapPage = () => {
       {/* BOTÓN PARA ABRIR UNITY */}
       <button
         onClick={() => navigate("/stadium3d")}
-        className="mt-6 w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300"
+        className="mt-6 w-full max-w-sm bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 flex-shrink-0"
       >
         🏟️ Explorar estadio en 3D
       </button>
